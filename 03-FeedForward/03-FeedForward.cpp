@@ -98,7 +98,7 @@ public:
 	NeuralNetwork(int inputSize, int hidden1Size, int hidden2Size, int outputSize) :
 		layerSizes{ inputSize, hidden1Size,hidden2Size, outputSize },
 		weights1(inputSize, hidden1Size),
-		weights2(inputSize, hidden1Size),
+		weights2(hidden1Size, hidden2Size),
 		weights3(hidden2Size, outputSize),
 		bias1(hidden1Size),
 		bias2(hidden2Size),
@@ -164,6 +164,8 @@ public:
 			double totalError = 0.0;
 			for (size_t k = 0; k < inputs.size(); k++) {
 				// Forward Pass: Compute output
+
+				// Layer 1 from Input to Hidden Layer 1
 				vector<double> hidden1(layerSizes[1]);
 				vector<double> hidden1Pre(layerSizes[1]);
 				// Layer 1.
@@ -263,8 +265,7 @@ public:
 				// Update weights for Layer 1
 				for (int i = 0; i < layerSizes[0]; i++) {
 					for (int j = 0; j < layerSizes[1]; j++) {
-						///***********************************************************k, i
-						weights1(i, j) -= learningRate * hidden1Gradiants[j] * inputs[i][j];
+						weights1(i, j) -= learningRate * hidden1Gradiants[j] * inputs[k][i];
 					}
 				}
 
