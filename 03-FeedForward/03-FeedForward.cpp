@@ -183,7 +183,7 @@ public:
 				vector<double> hidden2Pre(layerSizes[2]);
 				for (int j = 0; j < layerSizes[2]; j++) {
 					double sum = bias2[j];
-					for (int i = 0; i < layerSizes[2]; i++) {
+					for (int i = 0; i < layerSizes[1]; i++) {
 						sum += hidden1[i] * weights2(i, j);
 					}
 					hidden2Pre[j] = sum;
@@ -221,11 +221,11 @@ public:
 					for (int j = 0; j < layerSizes[3]; j++) {
 						error += outputGradiants[j] * weights3(i, j);
 					}
-					hidden2Gradiants[i] = error * Activitaion::relu_dydx(hidden1Pre[i]);
+					hidden2Gradiants[i] = error * Activitaion::relu_dydx(hidden2Pre[i]);
 				}
 
 				vector<double> hidden1Gradiants(layerSizes[1]);
-				for (int i = 0; i < layerSizes[i]; i++) {
+				for (int i = 0; i < layerSizes[1]; i++) {
 					double error = 0;
 					for (int j = 0; j < layerSizes[2]; j++) {
 						error += hidden2Gradiants[j] * weights2(i, j);
@@ -238,7 +238,7 @@ public:
 				// Update Weights for Layer 3
 				for (int i = 0; i < layerSizes[2]; i++) {
 					for (int j = 0; j < layerSizes[3]; j++) {
-						weights3(i, j) = learningRate * outputGradiants[j] * hidden2[i];
+						weights3(i, j) -= learningRate * outputGradiants[j] * hidden2[i];
 					}
 				}
 
@@ -315,7 +315,7 @@ int main()
 		auto  start = chrono::high_resolution_clock::now();
 		nn.train(inputs, targets, 0.01, 1000);
 		auto end = chrono::high_resolution_clock::now();
-		cout << "Total Training Time " << chrono::duration_cast<chrono::microseconds>(end - start).count() << "ms\n";
+		cout << "Total Training Time " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n";
 
 		vector<vector<double>> testPoints = {
 			{0.0,0.0},
