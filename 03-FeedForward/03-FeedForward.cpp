@@ -195,7 +195,6 @@ public:
 				vector<double> outputPre(layerSizes[3]);
 				for (int j = 0; j < layerSizes[3]; j++) {
 					double sum = bias3[j];
-					// CHE************************************* SHOULD BE 3
 					for (int i = 0; i < layerSizes[2]; i++) {
 						sum += hidden2[i] * weights3(i, j);
 					}
