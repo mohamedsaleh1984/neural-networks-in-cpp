@@ -28,6 +28,11 @@ namespace Activitaion {
 		double s = sigmoid(x);
 		return s * (1.0 - s);
 	}
+	inline double binaryCrossEntropy(double o, double t) {
+		const double eps = 1e-12;
+		o = min(max(o, eps), 1.0 - eps);
+		return -(t * log(o) + (1.0 - t) * log(1.0 - o));
+	}
 }
 
 class Matrix {
