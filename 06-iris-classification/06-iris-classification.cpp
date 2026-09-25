@@ -11,7 +11,12 @@
 #include <sstream>
 using namespace std;
 
+using LossFunctionCallback = double(*)(vector<double>&, vector<double>&);
+
 namespace data_layer {
+
+	vector<vector<int>>  data_range = { {0,49},{50,99},{100,149} };
+
     struct iris {
         double sepalLength;
         double sepalWidth;
@@ -21,10 +26,10 @@ namespace data_layer {
 
         std::string toString() {
             return "SepalLength " + std::to_string(sepalLength) +
-                " SepalWidth " + std::to_string(sepalWidth) +
-                " PetalLength " + to_string(petalLength) +
-                " PetalWidth " + to_string(petalWidth) +
-                " Name " + name;
+					" SepalWidth " + std::to_string(sepalWidth) +
+					" PetalLength " + to_string(petalLength) +
+					" PetalWidth " + to_string(petalWidth) +
+					" Name " + name;
 
         }
     };
@@ -85,14 +90,14 @@ namespace data_layer {
 	/// <returns>A vector of numeric feature vectors (vector<vector<double>>), where each inner vector is the result of irisToDblVector for a selected iris instance.</returns>
 	vector<vector<double>> get_training_dataset(const vector<iris>& dataset) {
 		vector<vector<double>> training;
-		for (int i = 0; i < dataset.size(); i++) {
-			if ((i >= 0 && i <= 39) ||
-				(i > 49 && i <= 89) ||
-				(i > 99 && i <= 139))
-			{
-				training.push_back(irisToDblVector(dataset[i]));
+		for (int j = 0; j < data_range.size(); j++) {
+			for (int i = 0; i < dataset.size(); i++) {
+				if (i >= data_range[j][0]  && i <= (data_range[j][1]-10) ) {
+					training.push_back(irisToDblVector(dataset[i]));
+				}
 			}
 		}
+		
 		return training;
 	}
 
@@ -105,11 +110,12 @@ namespace data_layer {
 	/// <returns>A vector of vectors of doubles where each inner vector is the result of converting a selected iris record (from the specified index ranges) to numeric features.</returns>
 	vector<vector<double>> get_test_dataset(const vector<iris>& dataset) {
 		vector<vector<double>>  test;
-		for (int i = 0; i < dataset.size(); i++) {
-			if ((i > 39 && i < 49) ||
-				(i > 89 && i <= 99) ||
-				(i > 139)) {
-				test.push_back(irisToDblVector(dataset[i]));
+		for (int j = 0; j < data_range.size(); j++) {	
+			for (int i = 0; i < dataset.size(); i++) {
+
+				if (i >= (data_range[j][0] + 40)&& i <= data_range[j][1] ) {
+					test.push_back(irisToDblVector(dataset[i]));
+				}
 			}
 		}
 		return test;
@@ -144,12 +150,11 @@ namespace data_layer {
 	
 	vector<vector<double>> get_training_dataset_target(const vector<iris>& dataset) {
 		vector<vector<double>> training;
-		for (int i = 0; i < dataset.size(); i++) {
-			if ((i >= 0 && i <= 39) ||
-				(i > 49 && i <= 89) ||
-				(i > 99 && i <= 139))
-			{
-				training.push_back({nameToIndex(dataset[i].name) });
+		for (int j = 0; j < data_range.size(); j++) {
+			for (int i = 0; i < dataset.size(); i++) {
+				if (i >= data_range[j][0] && i <= (data_range[j][1] - 10)) {
+					training.push_back({ nameToIndex(dataset[i].name) });
+				}
 			}
 		}
 		return training;
@@ -157,19 +162,18 @@ namespace data_layer {
 
 	vector<vector<double>> get_test_dataset_target(const vector<iris>& dataset) {
 		vector<vector<double>>  test;
-		for (int i = 0; i < dataset.size(); i++) {
-			if ((i > 39 && i < 49) ||
-				(i > 89 && i <= 99) ||
-				(i > 139)) {
-				test.push_back({ nameToIndex(dataset[i].name) });
+		for (int j = 0; j < data_range.size(); j++) {
+			for (int i = 0; i < dataset.size(); i++) {
+
+				if (i >= (data_range[j][0] + 40) && i <= data_range[j][1]) {
+					test.push_back({ nameToIndex(dataset[i].name) });
+				}
 			}
 		}
+
 		return test;
 	}
 }
-
-
-using LossFunctionCallback = double(*)(vector<double>&, vector<double>&);
 
 namespace activitaion {
 	inline double relu(double x) {
@@ -494,6 +498,7 @@ namespace neural_network_layer {
 	};
 
 }
+
 int main()
 {
 	try
@@ -502,29 +507,31 @@ int main()
 		cout << "Total number of rows is " << dataset.size() << endl;
 
 		vector<vector<double>> training_data = data_layer::get_training_dataset(dataset);
-		vector<vector<double>> training_target = data_layer::get_training_dataset_target(dataset);
-		neural_network_layer::NeuralNetwork nn(4, 8, 4, 1);
-
-		// Training Phase
-		auto  start = chrono::high_resolution_clock::now();
-		nn.train(training_data, training_target, 0.01, 2000);
-		auto end = chrono::high_resolution_clock::now();
-		cout << "Total Training Time " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n";
-
-
-		// Testing Phase
 		vector<vector<double>> test_data = data_layer::get_test_dataset(dataset);
-		vector<vector<double>> test_data_target = data_layer::get_test_dataset_target(dataset);
-	
-		for (int i = 0; i < test_data.size(); i++) {
-			auto output = nn.forward(test_data[i]);
+		
+		//vector<vector<double>> training_target = data_layer::get_training_dataset_target(dataset);
+		//neural_network_layer::NeuralNetwork nn(4, 8, 4, 1);
 
-			cout << "Actual Output "
-				<< test_data_target[i][0]
-				<< " Predicted Value "
-				<< output[0]
-				<< endl;
-		}
+		//// Training Phase
+		//auto  start = chrono::high_resolution_clock::now();
+		//nn.train(training_data, training_target, 0.01, 2000);
+		//auto end = chrono::high_resolution_clock::now();
+		//cout << "Total Training Time " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n";
+
+
+		//// Testing Phase
+		//vector<vector<double>> test_data = data_layer::get_test_dataset(dataset);
+		//vector<vector<double>> test_data_target = data_layer::get_test_dataset_target(dataset);
+	
+		//for (int i = 0; i < test_data.size(); i++) {
+		//	auto output = nn.forward(test_data[i]);
+
+		//	cout << "Actual Output "
+		//		<< test_data_target[i][0]
+		//		<< " Predicted Value "
+		//		<< output[0]
+		//		<< endl;
+		//}
 
 	}
 	catch (const std::exception&)
