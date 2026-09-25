@@ -1,0 +1,25 @@
+EPOCH : 0 LOSS : 0.0408906
+EPOCH : 1000 LOSS : 0.044365
+EPOCH : 2000 LOSS : 0.016056
+
+ Traning Complete
+
+predictions after training :
+ Input : [0 , 0 ] -> prediction : 0.0278453
+ Input : [0 , 1 ] -> prediction : 0.990508
+ Input : [1 , 0 ] -> prediction : 0.99035
+ Input : [1 , 1 ] -> prediction : 0.0278249
+
+ Testing Phase
+
+ test_input : [ 0.1 , 0.9] -> prediction : 0.952881 | -> raw: 1
+ test_input : [ 1 , 0] -> prediction : 0.99035 | -> raw: 1
+ test_input : [ 0 , 0] -> prediction : 0.0278453 | -> raw: 0
+ test_input : [ 1 , 1] -> prediction : 0.0278249 | -> raw: 0
+ test_input : [ 0 , 1] -> prediction : 0.990508 | -> raw: 1
+ test_input : [ 3 , 3] -> prediction : 0.0278249 | -> raw: 0
+ test_input : [ 0 , 10] -> prediction : 1 | -> raw: 1
+ test_input : [ 0 , 0] -> prediction : 0.0278453 | -> raw: 0
+ test_input : [ 0 , 1] -> prediction : 0.990508 | -> raw: 1
+ test_input : [ 1 , 0] -> prediction : 0.99035 | -> raw: 1
+ test_input : [ 1 , 1] -> prediction : 0.0278249 | -> raw: 0
