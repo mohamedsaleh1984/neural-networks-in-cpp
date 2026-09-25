@@ -11,12 +11,21 @@
 #include <sstream>
 using namespace std;
 
+/// <summary>
+/// Delegate for Error Loss Function to handle replace Loss Function Easily
+/// </summary>
 using LossFunctionCallback = double(*)(vector<double>&, vector<double>&);
 
 namespace data_layer {
 
+	/// <summary>
+	/// iris class data range
+	/// </summary>
 	vector<vector<int>>  data_range = { {0,49},{50,99},{100,149} };
 
+    /// <summary>
+    /// iris entity
+    /// </summary>
     struct iris {
         double sepalLength;
         double sepalWidth;
@@ -34,6 +43,12 @@ namespace data_layer {
         }
     };
 
+    /// <summary>
+    /// Overwrite standard input to read struct data
+    /// </summary>
+    /// <param name="is"></param>
+    /// <param name="ir"></param>
+    /// <returns></returns>
     std::istream& operator>>(std::istream& is, iris& ir) {
         std::string line;
 
@@ -56,6 +71,10 @@ namespace data_layer {
         return is;
     }
 
+    /// <summary>
+    /// Read iris dataset from disk
+    /// </summary>
+    /// <returns></returns>
     vector<iris> read_dataset() {
         vector<iris> vecs = {};
 
@@ -74,6 +93,11 @@ namespace data_layer {
         return vecs;
     }
 
+	/// <summary>
+	/// Convert iris entity to vector
+	/// </summary>
+	/// <param name="ir"></param>
+	/// <returns></returns>
 	vector<double> irisToDblVector(iris ir) {
 		return {
 			ir.sepalLength,
@@ -120,7 +144,11 @@ namespace data_layer {
 		}
 		return test;
 	}
-
+	/// <summary>
+	/// Convert class to index.
+	/// </summary>
+	/// <param name="name">Class name</param>
+	/// <returns>index</returns>
 	double nameToIndex(string name) {
 		if (name == "Iris-setosa") 
 			return 0;
@@ -133,6 +161,11 @@ namespace data_layer {
 		return -1;
 	}
 
+	/// <summary>
+	/// Convert index back to class.
+	/// </summary>
+	/// <param name="index"></param>
+	/// <returns></returns>
 	string nameFromIndex(double index)
 	{
 		if (index == 0) 
@@ -147,7 +180,12 @@ namespace data_layer {
 		throw invalid_argument("Index is not correct");
 		return "";
 	}
-	
+
+	/// <summary>
+	/// Extract Training target and convert it to vector
+	/// </summary>
+	/// <param name="dataset"></param>
+	/// <returns></returns>
 	vector<vector<double>> get_training_dataset_target(const vector<iris>& dataset) {
 		vector<vector<double>> training;
 		for (int j = 0; j < data_range.size(); j++) {
@@ -160,6 +198,11 @@ namespace data_layer {
 		return training;
 	}
 
+	/// <summary>
+	/// Extract Test target and convert it to vector
+	/// </summary>
+	/// <param name="dataset"></param>
+	/// <returns></returns>
 	vector<vector<double>> get_test_dataset_target(const vector<iris>& dataset) {
 		vector<vector<double>>  test;
 		for (int j = 0; j < data_range.size(); j++) {
@@ -506,32 +549,30 @@ int main()
 		vector<data_layer::iris> dataset = data_layer::read_dataset();
 		cout << "Total number of rows is " << dataset.size() << endl;
 
-		vector<vector<double>> training_data = data_layer::get_training_dataset(dataset);
+		vector<vector<double>> training_data = data_layer::get_training_dataset(dataset);		
+		vector<vector<double>> training_target = data_layer::get_training_dataset_target(dataset);
+		neural_network_layer::NeuralNetwork nn(4, 8, 4, 1);
+
+		// Training Phase
+		auto  start = chrono::high_resolution_clock::now();
+		nn.train(training_data, training_target, 0.01, 2000);
+		auto end = chrono::high_resolution_clock::now();
+		cout << "Total Training Time " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n";
+
+
+		// Testing Phase
 		vector<vector<double>> test_data = data_layer::get_test_dataset(dataset);
-		
-		//vector<vector<double>> training_target = data_layer::get_training_dataset_target(dataset);
-		//neural_network_layer::NeuralNetwork nn(4, 8, 4, 1);
-
-		//// Training Phase
-		//auto  start = chrono::high_resolution_clock::now();
-		//nn.train(training_data, training_target, 0.01, 2000);
-		//auto end = chrono::high_resolution_clock::now();
-		//cout << "Total Training Time " << chrono::duration_cast<chrono::milliseconds>(end - start).count() << "ms\n";
-
-
-		//// Testing Phase
-		//vector<vector<double>> test_data = data_layer::get_test_dataset(dataset);
-		//vector<vector<double>> test_data_target = data_layer::get_test_dataset_target(dataset);
+		vector<vector<double>> test_data_target = data_layer::get_test_dataset_target(dataset);
 	
-		//for (int i = 0; i < test_data.size(); i++) {
-		//	auto output = nn.forward(test_data[i]);
+		for (int i = 0; i < test_data.size(); i++) {
+			auto output = nn.forward(test_data[i]);
 
-		//	cout << "Actual Output "
-		//		<< test_data_target[i][0]
-		//		<< " Predicted Value "
-		//		<< output[0]
-		//		<< endl;
-		//}
+			cout << "Actual Output "
+				<< test_data_target[i][0]
+				<< " Predicted Value "
+				<< output[0]
+				<< endl;
+		}
 
 	}
 	catch (const std::exception&)
