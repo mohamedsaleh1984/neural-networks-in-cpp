@@ -16,7 +16,7 @@ public:
 		dataset(data), delimiter(separaator), header(head) {
 
 	}
-
+	std::vector<std::vector<std::string >> readCSV();
 };
 
 #endif 

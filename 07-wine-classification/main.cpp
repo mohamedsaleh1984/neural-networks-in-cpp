@@ -1,13 +1,27 @@
 #include <iostream>
-#include <Eigen/Dense>
+#include "ETL.h"
 
-using Eigen::MatrixXd;
+
 
 int main() {
-	MatrixXd m(2, 2);
-	m(0, 0) = 3;
-	m(1, 0) = 2.5;
-	m(0, 1) = -1;
-	m(1, 1) = m(1, 0) + m(0, 1);
-	std::cout << m << std::endl;
+
+	std::string dataset_file_path = ".\\wine\\wine.data";
+	try
+	{
+		ETL etl(dataset_file_path, ",", false);
+		std::vector<std::vector<std::string>> data = etl.readCSV();
+
+		for (auto row : data) {
+			for (auto col : row) {
+				std::cout << col << " ";
+			}
+			std::cout << std::endl;
+		}
+	}
+	catch (const std::exception& e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+	
+	return 0;
 }
