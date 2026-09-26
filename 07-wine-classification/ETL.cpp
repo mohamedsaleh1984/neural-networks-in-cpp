@@ -22,3 +22,22 @@ std::vector<std::vector<std::string >> ETL::readCSV() {
 	return dataString;
 }
 
+
+Eigen::MatrixXd ETL::CSVtoEigen(std::vector<std::vector<std::string>>  dataset, int rows, int  cols) 
+{
+
+	if(header == true){
+		rows--;
+	}
+
+	Eigen::MatrixXd mat(cols,rows);
+	
+
+	for (int i = 0; i < rows; i++ ) {
+		for (int j = 0; j < cols; j++) {
+			mat(j, i) = atof(dataset[i][j].c_str());
+		}
+	}
+
+	return mat.transpose();
+}
