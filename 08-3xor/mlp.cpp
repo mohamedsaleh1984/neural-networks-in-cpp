@@ -1,5 +1,5 @@
 // mlp.cpp
-//  A Hello World Example of Artificial Intelligence Using Multilayer Perceptron in C / C++
+// A Hello World Example of Artificial Intelligence Using Multilayer Perceptron in C / C++
 // https://www.youtube.com/watch?v=QvQB58TiiwI
 
 #include <iostream>
@@ -76,7 +76,7 @@ public:
 			y[l] = g(z[l]);
 		}
 		
-		return y;
+		return y;		// return output
 	}
 
 
@@ -84,7 +84,7 @@ public:
 	void backward(double yd[], double x[]) {
 
 		double delta[m1];
-		double deltao[m1];
+		double deltao[K];
 
 		for (int l = 0; l < K; l++) {
 			double e = yd[l] - y[l];			// output layer error
@@ -127,7 +127,7 @@ public:
 			{
 				get_input_data(k, x);
 				forward(x);
-				backward(yd + k * k, x);
+				backward(yd + k * K, x);
 			}
 		}
 	}
@@ -139,19 +139,19 @@ public:
 			cout << endl;
 			for (int j = 0; j < m1; j++) 
 			{
-				printf(" w[%d][%d] %5.3f\t", i, j, w[i][j]);
+				printf("w[%d][%d] %5.3f\t", i, j, w[i][j]);
 			}
 		}
 
 		cout << endl;
 
-		cout << "\n MLP hidden to output weights";
+		cout << "\nMLP hidden to output weights";
 		for (int i = 0; i < m1; i++)
 		{
 			cout << endl;
 			for (int j = 0; j < K; j++)
 			{
-				printf(" wo[%d][%d] %5.3f\t", i, j, wo[i][j]);
+				printf("wo[%d][%d] %5.3f\t", i, j, wo[i][j]);
 			}
 		}
 
