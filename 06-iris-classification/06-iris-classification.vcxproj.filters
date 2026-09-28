@@ -21,5 +21,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="iris.data" />
+    <None Include="README.md" />
   </ItemGroup>
 </Project>
