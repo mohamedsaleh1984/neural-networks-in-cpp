@@ -8,29 +8,28 @@
 
 using namespace std;
 
-
 // MLP traning for an XOR gate
 const int n1 = 3;			// number of inputs and bias
 const int m1 = 3;			// number of hidden nodes and bias
-const int K = 1;			// number of outputs
+const int K  = 1;			// number of outputs
 const int numSamples = 4;
 double inputs[numSamples][n1] = {
 
-	1,0,0,				
-	1,0,1,
-	1,1,0,
-	1,1,1
+	1,0,0,					// x0=1, x1=0, x2=0		
+	1,0,1,					// x0=1, x1=0, x2=1
+	1,1,0,					// x0=1, x1=1, x2=0
+	1,1,1					// x0=1, x1=1, x2=1	
 };
 double labels[numSamples][K] = { 0,1,1,0 }; // target output
 
 // from input to hidden layer
 double w[n1][m1] = {						// Random Weight
-		0.97,0.2,			
-		0.73,0.1,0.9,
-		0.2,.07,0.3
+		0.97,	0.2,	0.7,			
+		0.73,	0.1,	0.9,
+		0.2,	0.7,	0.3
 };
 // from hidden layer to output
-double wo[m1][K] = { 0.76,0.6,.01 };		// Random weights
+double wo[m1][K] = { 0.76, 0.6, 0.1 };		// Random weights
 
 
 // Simple MLP class
@@ -65,7 +64,6 @@ public:
 			a[j] = 0;
 			for (int i = 0; i < n1; i++)
 				a[j] += w[i][j] * x[i];
-
 			if (j > 0)
 				h[j] = g(a[j]);
 		}
