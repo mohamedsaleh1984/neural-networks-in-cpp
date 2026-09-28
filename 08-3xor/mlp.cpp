@@ -134,23 +134,28 @@ public:
 
 	void printWeigts() {
 
-		cout << "\n Weights";
+		cout << "\nMLP input to hidden weights";
 		for (int i = 0; i < n1; i++) {
 			cout << endl;
-			for (int j = 0; j < m1; j++) {
-				printf(" w[%d,%d] %5.3f\t", i, j, w[i][j]);
+			for (int j = 0; j < m1; j++) 
+			{
+				printf(" w[%d][%d] %5.3f\t", i, j, w[i][j]);
 			}
 		}
-			
-		cout << "\n Weights";
+
+		cout << endl;
+
+		cout << "\n MLP hidden to output weights";
 		for (int i = 0; i < m1; i++)
 		{
 			cout << endl;
 			for (int j = 0; j < K; j++)
 			{
-				printf(" wo[%d,%d] %5.3f\t", i, j, wo[i][j]);
+				printf(" wo[%d][%d] %5.3f\t", i, j, wo[i][j]);
 			}
 		}
+
+		cout << endl;
 	}
 
 	~MLP() {
@@ -185,10 +190,11 @@ int main() {
 	for (int i = 0; i < 4; i++) {
 		input[1] = i & 1;
 		input[2] = i >> 1;
+
 		double* output = mlp.forward(input);
-		cout << fixed << setprecision(0) << "  " << input[2]
-			<< gates << input[1] << " = " << classifier(*output) 
-			<< setprecision(2) << " ( " << output[0] << ") " << endl;
+		cout << fixed << setprecision(0) << "  " 
+			<< input[2] << gates << input[1] << " = " << classifier(*output) 
+			<< setprecision(2) << " (" << output[0] << ") " << endl;
 	}
 	
 	mlp.printWeigts();
