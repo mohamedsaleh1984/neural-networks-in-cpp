@@ -14,7 +14,7 @@ const int m1 = 3;			// number of hidden nodes and bias
 const int K  = 1;			// number of outputs
 const int numSamples = 4;
 double inputs[numSamples][n1] = {
-
+	// x0 => Input Bias 
 	1,0,0,					// x0=1, x1=0, x2=0		
 	1,0,1,					// x0=1, x1=0, x2=1
 	1,1,0,					// x0=1, x1=1, x2=0

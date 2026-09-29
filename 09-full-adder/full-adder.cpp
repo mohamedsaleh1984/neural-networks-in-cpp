@@ -1,4 +1,4 @@
-// mlp.cpp
+// full-adder.cpp
 // A Hello World Example of Artificial Intelligence Using Multilayer Perceptron in C / C++
 // https://www.youtube.com/watch?v=QvQB58TiiwI
 
@@ -12,19 +12,21 @@
 #include <chrono>
 using namespace std;
 
-using namespace std;
+// MLP traning for an Full Adder gate
+// 1 Bias	2 bits Input 1 Carry bit
+const int nn_inputs_count = 4;				// number of inputs and bias
+const int nn_hiddenLayerNodes_count = 6;	// number of hidden nodes and bias
+const int nn_output_count = 2;				// number of outputs  ( S  C )
+const int numSamples = 8;
 
-// MLP traning for an XOR gate
-// 3 bits + Carry bit
-const int n1 = 4;			// number of inputs and bias
-const int m1 = 6;			// number of hidden nodes and bias
-const int K = 2;			// number of outputs  ( S  C )
-const int numSamples = 8;	// 
-double inputs[numSamples][n1] = {
+// 1 Bias	2 bits Input 1 Carry bit
+// First row is always 1 
+double inputs[numSamples][nn_inputs_count] = {
 	1, 0, 0, 0,   // A=0 B=0 Cin=0
 	1, 1, 0, 0,   // A=0 B=0 Cin=1
 	1, 0, 1, 0,   // A=0 B=1 Cin=0
 	1, 1, 1, 0,   // A=0 B=1 Cin=1
+
 	1, 0, 0, 1,   // A=1 B=0 Cin=0
 	1, 1, 0, 1,   // A=1 B=0 Cin=1
 	1, 0, 1, 1,   // A=1 B=1 Cin=0
@@ -32,7 +34,7 @@ double inputs[numSamples][n1] = {
 };
 
 // target output
-double labels[numSamples][K] = {
+double nn_expected_output[numSamples][nn_output_count] = {
 	0,0,   // 0+0+0 = 0, carry 0
 	1,0,   // 0+0+1 = 1, carry 0
 	1,0,   // 0+1+0 = 1, carry 0
@@ -44,159 +46,151 @@ double labels[numSamples][K] = {
 }; 
 
 // from input to hidden layer
-double w[n1][m1] = {
-	0.97, 0.2, 0.7, 0.5, 0.3,
-	0.73, 0.1, 0.9, 0.4, 0.6,
-	0.2,  0.7, 0.3, 0.8, 0.1,
-	0.5,  0.6, 0.2, 0.9, 0.4
+double weight[nn_inputs_count][nn_hiddenLayerNodes_count] = {
+	0.97, 0.2, 0.7, 0.5,0.3, 0.73,0.1, 0.9,
+	0.4, 0.6,0.2, 0.7,0.3, 0.8,0.1, 0.5,0.6, 0.2,0.9, 0.4
 };
 
 // from hidden layer to output
-double wo[m1][K] = { 0.76, 0.3,
-	0.6,  0.7,
-	0.1,  0.5,
-	0.4,  0.8,
-	0.9,  0.2 };
+double weightOutput[nn_hiddenLayerNodes_count][nn_output_count] = 
+{ 0.76,  0.3,0.6,  0.7,0.1,  0.5,0.4,  0.8,0.9,  0.2 };
 
 
 // Simple MLP class
 class MLP {
 private:
-	double a[m1];	// linear sum of products of inputs and weights
-	double h[m1];	// hiddden nodes 
-	double y[K];	// predicted output
-	double z[K];	// linear sum
-	double eta;		// learning rate
-
-	void initWeights() {	
-		std::random_device rd;
-		mt19937 gen(rd());
-		normal_distribution<> dist(std::nextafter(0.0, 1.0), 1.0);
-
-		double scale1 = sqrt(2.0 / n1);
-		double scale2 = sqrt(2.0 / m1);
-
-		for (int i = 0; i < n1; i++)
-			for (int j = 0; j < m1; j++)
-				w[i][j] =fabs( dist(gen));
-
-		for (int i = 0; i < m1; i++)
-			for (int j = 0; j < K; j++)
-				wo[i][j] =fabs( dist(gen));
-	}
+	double wigIn2Hid[nn_hiddenLayerNodes_count];	// linear sum of products of inputs and weights
+	double actIn2Hid[nn_hiddenLayerNodes_count];	// hiddden nodes 
+	double actHid2Out[nn_output_count];				// predicted output
+	double wigHid2Out[nn_output_count];				// linear sum
+	double eta;										// learning rate
 
 public:
 	MLP(double learing_rate) {
 		eta = learing_rate;
-		h[0] = 1;		// for bias
-		//initWeights();
+		actIn2Hid[0] = 1;		// for bias
 	}
 
 	// Sigmoid activitaion function
-	double g(double x) {
+	double sigmoid(double x) {
 		return 1.0 / (1.0 + exp(-x));
 	}
 
 	// Derivayive of sigmod function
-	double gd(double x) {
-		double s = g(x);
+	double sigmoid_dydx(double x) {
+		double s = sigmoid(x);
 		return s * (1 - s);
 	}
 
-	double* forward(double x[]) {
-		// hidden layer activitaion
-		for (int j = 0; j < m1; j++) {
-			a[j] = 0;
-			for (int i = 0; i < n1; i++)
-				a[j] += w[i][j] * x[i];
-			if (j > 0)
-				h[j] = g(a[j]);
+	double* forward(double input[]) {
+		// hidden layer activation
+		for (int j = 0; j < nn_hiddenLayerNodes_count; j++) {
+			wigIn2Hid[j] = 0;
+			for (int i = 0; i < nn_inputs_count; i++)
+				wigIn2Hid[j] += weight[i][j] * input[i];
+			// Compute Activitaion After input*weight
+			actIn2Hid[j] = sigmoid(wigIn2Hid[j]);
 		}
 
+		
 		// output layer activitaion
-		for (int l = 0; l < K; l++) {
-			z[l] = 0;
-			for (int j = 0; j < m1; j++)
-				z[l] += wo[j][l] * h[j];
-			y[l] = g(z[l]);
+		for (int l = 0; l < nn_output_count; l++) {
+			wigHid2Out[l] = 0;
+			for (int j = 0; j < nn_hiddenLayerNodes_count; j++)
+				wigHid2Out[l] += weightOutput[j][l] * actIn2Hid[j];
+			actHid2Out[l] = sigmoid(wigHid2Out[l]);
 		}
-
-		return y;		// return output
+		
+		return actHid2Out;		// return output
 	}
 
+	// Backward propagation, expected_output is the desired output
+	void backward(double expected_output[], double x[]) {
 
-	// Backward propagation, yd is the desired output
-	void backward(double yd[], double x[]) {
-
-		double delta[m1];
-		double deltao[K];
-
-		for (int l = 0; l < K; l++) {
-			double e = yd[l] - y[l];			// output layer error
-			deltao[l] = e * gd(z[l]);
+		double delta[nn_hiddenLayerNodes_count];
+		double deltao[nn_output_count];
+		
+		// Computer Delta
+		for (int l = 0; l < nn_output_count; l++) {
+			double e = expected_output[l] - actHid2Out[l];			// output layer error
+			deltao[l] = e * sigmoid_dydx(wigHid2Out[l]);
 		}
 
 		// Compute hidden layer error
-		for (int j = 1; j < m1; j++) {
+		for (int j = 0; j < nn_hiddenLayerNodes_count; j++) {
 			delta[j] = 0;
-			for (int l = 0; l < K; l++)
-				delta[j] += deltao[l] * wo[j][l] * gd(a[j]);
+			for (int l = 0; l < nn_output_count; l++)
+				delta[j] += deltao[l] * weightOutput[j][l] * sigmoid_dydx(wigIn2Hid[j]);
 		}
 
 		// update weights (hidden to output)
-		for (int j = 0; j < m1; j++)
-			for (int l = 0; l < K; l++)
-				wo[j][l] += eta * deltao[l] * h[j];
+		for (int j = 0; j < nn_hiddenLayerNodes_count; j++)
+			for (int l = 0; l < nn_output_count; l++)
+				weightOutput[j][l] += eta * deltao[l] * actIn2Hid[j];
 
 		// udpate weights (input to hidden)
-		for (int i = 0; i < n1; i++)
-			for (int j = 1; j < m1; j++)
-				w[i][j] += eta * delta[j] * x[i];
+		for (int i = 0; i < nn_inputs_count; i++)
+			for (int j = 0; j < nn_hiddenLayerNodes_count; j++)
+				weight[i][j] += eta * delta[j] * x[i];
 
 	}
 
 	void get_input_data(int k, double x[]) {
-		for (int i = 0; i < n1; i++)
+		for (int i = 0; i < nn_inputs_count; i++)
 			x[i] = inputs[k][i];
+
+		// printArray("inputs", x, nn_inputs_count);
 	}
 
 	// Train the MLP
 	// epochs = number of times of training
 	// numSamples = number of different inputs sets
 	void train(int numSamples, int epochs) {
-		double x[n1];			// inputs
-		double* yd = &labels[0][0];
+		double x[nn_inputs_count];							// inputs
+		double* expected_output = &nn_expected_output[0][0];
 
 		for (int epoch = 0; epoch < epochs; epoch++) {
 			for (int k = 0; k < numSamples; k++)
 			{
 				get_input_data(k, x);
 				forward(x);
-				backward(yd + k * K, x);
+				backward(expected_output + k * nn_output_count, x);
 			}
+
+			/*if (epoch % 100 == 0) {
+				printArray("inputs", x, nn_inputs_count);
+				printWeigts();
+			}*/
 		}
 	}
 
+	void printArray(string header,double x[], int len) {
+		cout << header << " " << endl;
+		for (int i = 0; i < len; i++) {
+			cout << x[i] << " ";
+		}
+		cout << endl;
+	}
 	void printWeigts() {
 
 		cout << "\nMLP input to hidden weights";
-		for (int i = 0; i < n1; i++) {
+		for (int i = 0; i < nn_inputs_count; i++) {
 			cout << endl;
-			for (int j = 0; j < m1; j++)
+			for (int j = 0; j < nn_hiddenLayerNodes_count; j++)
 			{
-				printf("w[%d][%d] %5.3f\t", i, j, w[i][j]);
+				printf("weight[%d][%d] %5.3f\t", i, j, weight[i][j]);
 			}
 		}
 
 		cout << endl;
 
 		cout << "\nMLP hidden to output weights";
-		for (int i = 0; i < m1; i++)
+		for (int i = 0; i < nn_hiddenLayerNodes_count; i++)
 		{
 			cout << endl;
-			for (int j = 0; j < K; j++)
+			for (int j = 0; j < nn_output_count; j++)
 			{
-				printf("wo[%d][%d] %5.3f\t", i, j, wo[i][j]);
+				printf("weightOutput[%d][%d] %5.3f\t", i, j, weightOutput[i][j]);
 			}
 		}
 
@@ -221,13 +215,12 @@ int classifier(double x) {
 int main() {
 
 	// Training data for XOR gate, four sets of x
-
 	string gates = " + ";
 	MLP mlp(0.5);
 
 	mlp.train(numSamples, 20000);
 
-	double input[n1];
+	double input[nn_inputs_count];
 	cout << "\n Testing MLP (Full Adder) " << endl;
 	
 	for (int i = 0; i < numSamples; i++) {
@@ -235,14 +228,19 @@ int main() {
 		input[2] = (i >> 1) & 1;     // B
 		input[3] = (i >> 2) & 1;     // Cin
 
+		cout << input[1] << " + " << input[2] << " + " << input[3] << endl;
 		double* output = mlp.forward(input);
 
 		cout << fixed << setprecision(0)
-			<< "  " << input[3] << gates << input[2] << gates << input[1]
+			<< "  " << input[1] 
+			<< gates << input[2] 
+			<< gates << input[3]
 			<< " = Sum:" << classifier(output[0])
 			<< " Cout:" << classifier(output[1])
 			<< setprecision(2)
-			<< " (" << output[0] << ", " << output[1] << ")" << endl;
+			<< " (" << output[0] 
+			<< ", " << output[1] 
+			<< ")" << endl;
 	}
 
 	mlp.printWeigts();
