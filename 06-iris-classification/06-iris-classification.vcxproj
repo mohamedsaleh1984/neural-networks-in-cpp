@@ -24,6 +24,7 @@
     <ProjectGuid>{6ce2254c-063b-4012-9ded-961a2da2f26e}</ProjectGuid>
     <RootNamespace>My06irisclassification</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>06-iris-classification-KNN</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
