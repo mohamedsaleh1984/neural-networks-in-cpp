@@ -307,20 +307,20 @@ namespace nn {
 						bias1[j] -= learningRate * hiddenGradients[j];
 					}
 				}
-				if (e % 1000 == 0) {
+				if (e % 10 == 0) {
 					cout << "EPOCH : " << e << " LOSS : " << totalLoss / inputs.size() << endl;
 				}
 			}
 		}
-
-		int getClass(const vector<double>& t) {
-			if (t[0] == 1) return 0;
-			if (t[1] == 1) return 1;
-			if (t[2] == 1) return 2;
-
-			return -1;
-		}
+	
 };
+	int getClass(const vector<double>& t) {
+	if (t[0] == 1) return 0;
+	if (t[1] == 1) return 1;
+	if (t[2] == 1) return 2;
+
+	return -1;
+}
 }
 
 namespace data_layer {
@@ -454,7 +454,6 @@ namespace data_layer {
 	}
 }
 
-
 namespace demo_softmax {
 	// Computes the stable softmax of an input vector in place
 	void softmax(std::vector<double>& logits) {
@@ -521,11 +520,54 @@ namespace demo_softmax {
 	}
 }
 
+void printVec(const vector<double> vec) {
+	for (auto x : vec)
+		cout << x << " ";
+}
+
 int main()
 {
-	// 
-	//nn::NeuralNetwork nx(4, 5, 3);
+	using namespace data_layer;
+	vector<vector<iris>> data = getTraningTestData();
+	nn::NeuralNetwork nx(4, 5, 3);
 
+	// training data
+	vector<vector<double>> iris2dvec = {};
+	vector<vector<double>> target = {};
+	for (int i = 0; i < data[0].size(); i++) {
+		iris2dvec.push_back(data[0][i].features);
+		target.push_back({ data[0][i].expected });
+	}
+
+	nx.train(iris2dvec, target, 0.1, 50);
 	
+
+	// test data
+	vector<vector<double>> iris2dvec_t = {};
+	vector<vector<double>> target_t = {};
+	for (int i = 0; i < data[1].size(); i++) {
+		iris2dvec_t.push_back(data[1][i].features);
+		target_t.push_back({ data[1][i].expected });
+	}
+
+	// Run test
+	for (int i = 0; i < iris2dvec_t.size(); i++) {
+		vector<double> modelOutput = nx.predict(iris2dvec_t[i]);
+		cout << "Model Output" << endl;
+		printVec(modelOutput);
+
+		int xclass = nn::getClass(modelOutput);
+		cout << "Model Output Class" << xclass << endl;
+
+		int aclass = nn::getClass(target_t[i]);
+
+		if (xclass == aclass) {
+			cout << "Correct " << endl;
+		}
+		else {
+			cout << "Incorrect" << endl;
+		}
+	}
+
 	return EXIT_SUCCESS;
 }
