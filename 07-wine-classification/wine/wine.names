@@ -58,7 +58,7 @@
  	1) Alcohol
  	2) Malic acid
  	3) Ash
-	4) Alcalinity of ash  
+	4) Alcalinity of ash
  	5) Magnesium
 	6) Total phenols
  	7) Flavanoids
@@ -67,11 +67,11 @@
 	10)Color intensity
  	11)Hue
  	12)OD280/OD315 of diluted wines
- 	13)Proline            
+ 	13)Proline  
 
 5. Number of Instances
 
-      	class 1 59
+    class 1 59
 	class 2 71
 	class 3 48
 
@@ -95,6 +95,6 @@
 
 9. Class Distribution: number of instances per class
 
-      	class 1 59
+    class 1 59
 	class 2 71
 	class 3 48
