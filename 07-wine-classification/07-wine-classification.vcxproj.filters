@@ -27,6 +27,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
+    <None Include="wine\wine.data" />
+    <None Include="wine\wine.names" />
+    <None Include="wine\Index" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ETL.h">

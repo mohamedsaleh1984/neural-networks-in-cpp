@@ -1,5 +1,8 @@
-// 03-FeedForward.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+// 03-FeedForward.cpp 
+/*
+	Train a Neural Network to classify points inside and outside a circle using Feedforward Neural Network 
+	with 2 hidden layers.
+*/
 
 #include <iostream>
 #include <vector>

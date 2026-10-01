@@ -131,6 +131,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
+    <None Include="wine\Index" />
+    <None Include="wine\wine.data" />
+    <None Include="wine\wine.names" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ETL.h" />

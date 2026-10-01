@@ -1,4 +1,8 @@
-﻿
+﻿// 06-iris-classification
+/*
+* This program implements a K-Nearest Neighbors (KNN) classifier for the Iris dataset. It reads the dataset from a CSV file, splits it into training and test sets, and evaluates the model's performance on the test set.
+*/
+
 #include <iostream>
 #include <vector>
 #include <string>
@@ -46,7 +50,6 @@ namespace classification {
 				}
 			}
 		}
-
 		return training;
 	}
 
@@ -98,10 +101,11 @@ namespace classification {
 	// KNN Classifier Implementation
 	std::string predictKNN(const std::vector<data_layer::iris>& trainData, const std::vector<double>& testFeatures) {
 		int k = 3; // Number of neighbors
+		
 		// Pairs of (distance, label)
 		std::vector<std::pair<double, std::string>> distances;
 
-		 
+		// Calculate distances from the test sample to all training samples 
 		for (const auto& trainSample : trainData) {
 			double dist = calculateDistance(trainSample.features, testFeatures);
 			distances.push_back({ dist, trainSample.label });
