@@ -70,7 +70,7 @@ namespace activition_functions {
 
 	// Jacobian: d f_i / d x_j = f_i * (delta_ij - f_j)
 	// Returns full Jacobian matrix (n x n)
-	std::vector<std::vector<double>> softmax_dydx(const std::vector<double>& x) {
+	std::vector<std::vector<double>> _softmax_dydx(const std::vector<double>& x) {
 		std::vector<double> f = softmax(x);
 		size_t n = f.size();
 		std::vector<std::vector<double>> J(n, std::vector<double>(n, 0.0));
@@ -82,6 +82,15 @@ namespace activition_functions {
 			}
 		}
 		return J;
+	}
+	std::vector<double> softmax_dydx(const std::vector<double>& probabilities,int true_class_index)
+	{
+		std::vector<double> gradients = probabilities;
+
+		// Subtract 1 from the true class probability (one-hot target)
+		gradients[true_class_index] -= 1.0;
+
+		return gradients;
 	}
 }
 
@@ -152,6 +161,8 @@ namespace random_function {
 
 namespace nn {
 	using namespace loss_function;
+	using namespace random_function;
+	using namespace activition_functions;
 
 	class NeuralNetwork {
 	public:
@@ -171,24 +182,16 @@ namespace nn {
 		}
 
 		void initWeights() {
-
-			for (auto& row : weights1) {
+			RandomGenerator rg;
+			
+			for (auto& row : weights1) 
 				for (double& w : row)
-				{
-					// Generate random values
-					// 0.1 - 0.5
-					w = (double)rand() / RAND_MAX - 0.5;
-				}
-			}
+					w = rg.pick();
 
-			for (auto& row : weights2) {
+			for (auto& row : weights2)
 				for (double& w : row)
-				{
-					// Generate random values
-					// 0.1 - 0.5
-					w = (double)rand() / RAND_MAX - 0.5;
-				}
-			}
+					w =rg.pick();
+			
 		}
 
 		// Forward Pass
@@ -204,8 +207,8 @@ namespace nn {
 
 			// From Input Layer to Hidden Layer
 			for (size_t j = 0; j < hiddenLayer.size(); j++) {
-				// softmax..			
-				// hiddenLayer[j] = relu(hiddenLayer[j] + bias1[j]);
+				// replace relu with tanh		
+				hiddenLayer[j] = activition_functions::tanh(hiddenLayer[j] + bias1[j]);
 			}
 
 			vector<double> output(weights2[0].size(), 0);
@@ -217,11 +220,16 @@ namespace nn {
 			}
 
 			// From Hidden Layer to Output Layer
+			
+			// SUM output & bias2
+			vector<double> sumResult;
 			for (size_t j = 0; j < output.size(); j++) {
-				// output
-				// output[j] = sigmoid(output[j] + bias2[j]);
+				sumResult.push_back(output[j] + bias2[j]);
 			}
-				
+
+			// apply softmax
+			output = activition_functions::softmax(sumResult);
+
 			return output;
 		}
 
@@ -238,7 +246,9 @@ namespace nn {
 		// @epochs => How many Iterations the model will go over the entire dataset
 		// @LossFunctionCallback => If not passed then MeanSquareError otherwise Custom Implementation
 		*/
-		void train(vector<vector<double>> inputs, vector<vector<double>> targets, double learningRate, int epochs, LossFunctionCallback LossFunction = nullptr) {
+		void train(vector<vector<double>> inputs, 
+				vector<vector<double>> targets,
+				double learningRate, int epochs, LossFunctionCallback LossFunction = nullptr) {
 			for (int e = 0; e < epochs; e++) {
 				// keep track of the total errors across the training sample
 				// judge how well the network doing over time.
@@ -252,16 +262,17 @@ namespace nn {
 					double loss = LossFunction == nullptr ? meanSquaredError(output, targets[i]) : LossFunction(output, targets[i]);
 					totalLoss += loss;
 
-					// Compute  Stochastic Gradient Descent  (Backpropagation)
-					//  because the weights are updated after each individual training sample, not after the entire dataset. 
-					// This is a common and efficient variant of gradient descent, especially for small datasets like XOR.
+					
+					vector<double> diffResult(output.size());
 
-					vector<double> outputGradiants(output.size());
+					// subtract output and target
 					for (size_t j = 0; j < output.size(); j++)
 					{
-						// CORRECT
-						//outputGradiants[j] = (output[j] - targets[i][j]) * sigmoid_dydx(output[j]);
+						diffResult[j] = (output[j] - targets[i][j]);
 					}
+
+					vector<double> outputGradiants(output.size());
+					outputGradiants = activition_functions::softmax_dydx(diffResult, getClass(targets[i]));
 
 					vector<double> hiddenGradients(hiddenLayer.size());
 					for (size_t j = 0; j < hiddenLayer.size(); j++) {
@@ -270,7 +281,7 @@ namespace nn {
 							hiddenGradients[j] += outputGradiants[k] * weights2[j][k];
 						}
 						// Correct
-						//hiddenGradients[j] *= relu_dydx(hiddenLayer[j]);
+						hiddenGradients[j] *= activition_functions::tanh_dydx(hiddenLayer[j]);
 					}
 
 
@@ -302,7 +313,14 @@ namespace nn {
 			}
 		}
 
-	};
+		int getClass(const vector<double>& t) {
+			if (t[0] == 1) return 0;
+			if (t[1] == 1) return 1;
+			if (t[2] == 1) return 2;
+
+			return -1;
+		}
+};
 }
 
 namespace data_layer {
@@ -502,12 +520,12 @@ namespace demo_softmax {
 
 	}
 }
+
 int main()
 {
 	// 
 	//nn::NeuralNetwork nx(4, 5, 3);
 
-	demo_softmax::demo2();
-
+	
 	return EXIT_SUCCESS;
 }
