@@ -2,11 +2,12 @@
 #include <fstream>
 #include <string>
 #include <exception>
+#include <random>
 
 class Input {
 private:
 	std::string label;
-	char flag;
+	double flag;
 public:
 	Input() {}
 	virtual ~Input() {}
@@ -14,8 +15,9 @@ public:
 	void set_label(std::string lab) { this->label = lab; }
 	std::string get_label() { return this->label; }
 
-	void set_flag(char lab) { this->flag = lab; }
-	char get_flag() { return this->flag; }
+	// represent the input as a numeric value for training purposes
+	void set_flag(double lab) { this->flag = lab; }
+	double get_flag() { return this->flag; }
 
 
 	virtual double operator[](int index) = 0;
@@ -72,16 +74,20 @@ protected:
 	double* weights = NULL;
 	ActivationFunction* activationFunction;
 	double delta;
-	char label;
+	std::string label;
 
 public:
 	Perceptron(int inputSize, ActivationFunction* activationFunction, char label);
-	Perceptron() {}
+	Perceptron() {
+		if(this->weights != NULL) {
+			delete[] this->weights;
+		}
+	}
 	~Perceptron() {}
 
 	double get_weight(int index) { return weights[index]; }
 	double get_delta() { return delta; }
-	char get_label() { return label; }
+	std::string get_label() { return label; }
 
 	double forward(Input& input);
 	double compute_delta(Input& input);
@@ -123,3 +129,22 @@ template<class T, int size, class N>
 Training<T, size, N>::Training(N* neuralNetwork) {
 	this->neuralNetwork = neuralNetwork;
 }
+
+
+
+class RandomGenerator {
+private:
+	double lowerBound;
+	double upperBound;
+	std::random_device rd;
+
+public:
+	RandomGenerator(double lowerBound, double upperBound) : lowerBound(lowerBound), upperBound(upperBound) {
+	}
+	
+	double generate() {
+		std::mt19937 gen(rd());
+		std::uniform_real_distribution<double> dis(lowerBound, upperBound);
+		return dis(rd);
+	}
+};

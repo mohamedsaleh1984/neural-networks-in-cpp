@@ -12,6 +12,42 @@
 #include <sstream>
 #include <algorithm>
 using namespace std;
+
+class ActivationFunction
+{
+public:
+	virtual double operator()(double x) = 0;
+	virtual double prim(double x) = 0;
+};
+
+class Tanh : public ActivationFunction {
+public:
+	Tanh() {}
+	~Tanh() {}
+
+	// tanh(x) = (exp(x) - exp(-x))/ (exp(x) + exp(-x))
+	double operator()(double x) { return (exp(x) - exp(-x)) / (exp(x) + exp(-x)); }
+
+	// tanh'(x) = 1 - (tanh(x))^2)
+	double prim(double x) { return 1 - pow((*this)(x), 2); }
+};
+
+class Sigmoid : public ActivationFunction {
+public:
+	Sigmoid() {}
+	~Sigmoid() {}
+
+	// sig(x) = 1 / (1 + exp(-x))
+	double operator()(double x) {
+		return 1 / (1 + exp(-x));
+	}
+
+	//sig'(x) = (1 - sig(x))
+	double prim(double x) {
+		return (*this)(x) * (1 - (*this)(x));
+	}
+};
+
 namespace activitaion {
 	inline double relu(double x) {
 		return max(0.0, x);

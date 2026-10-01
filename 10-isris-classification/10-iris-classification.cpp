@@ -2,20 +2,23 @@
 #include <fstream>
 #include <string>
 #include <exception>
+#include <random> // Required for modern random number generation
 #include "abstraction.cpp"
 using namespace std;
 
 #define filePath "iris.csv"
 const int irisSize = 150;
 
-// Constructor
 Perceptron::Perceptron(int inputSize, ActivationFunction* activationFunction, char label) {
+	RandomGenerator r(0.1, 0.9);
+
 	this->activationFunction = activationFunction;
 	this->label = label;
 	this->delta = 0;
 	this->weights = (double*)malloc(inputSize * sizeof(double));
+
 	for (int i = 0; i <= inputSize; i++) {
-		this->weights[i] = rand() % 2 - 1;
+		this->weights[i] = r.generate();
 	}
 }
 
@@ -35,22 +38,24 @@ Iris::Iris(int flowerIndex) : Input() {
 				tokens[i] = line.substr(0, line.find(delimiter));
 				line.erase(0, line.find(delimiter) + 1);
 
+				// set flower's label
 				if( i == 4) {
 					this->set_label(tokens[i]);
 				}
 			}
 
 			if (tokens[4] == "Iris-setosa") {
-				this->set_flag('0');
+				this->set_flag(0);
 			}
 			else if (tokens[4] == "Iris-virginica") {
-				this->set_flag('1');
+				this->set_flag(1);
 			}
 			else {
-				this->set_flag('2');
+				this->set_flag(2);
 			}
 
 			for (int i = 0; i < 4; ++i) {
+				// string to double 
 				this->features[i] = stod(tokens[i]);
 			}
 
@@ -113,7 +118,7 @@ double Perceptron::forward(Input& input)
 double Perceptron::compute_delta(Input& input) {
 	double sum = this->weights[0];
 	double output = this->forward(input);
-	double expected = static_cast<double>(input.get_flag());
+	double expected = input.get_flag();
 
 	int i = 0;
 	while (input[i] != -1) {
@@ -161,8 +166,8 @@ int Training<T, size, N>::evaluate() {
 
 	for (int index = 0; index < size; ++index) {
 		T input(index);
-		char actualLabel = input.get_flag();
-		char predictedLabel = this->neuralNetwork->evaluate(input) - 48;
+		double actualLabel = input.get_flag();
+		double predictedLabel = this->neuralNetwork->evaluate(input);
 
 		if (predictedLabel == actualLabel) {
 			++correctCount;
