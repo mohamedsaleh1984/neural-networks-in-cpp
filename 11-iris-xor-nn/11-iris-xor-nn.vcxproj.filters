@@ -15,11 +15,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="06-iris-classification.cpp">
+    <ClCompile Include="11-iris-xor-nn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="README.md" />
+    <None Include="iris.csv" />
   </ItemGroup>
 </Project>
