@@ -21,5 +21,8 @@
     <ClCompile Include="10-iris-classification.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="abstraction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
