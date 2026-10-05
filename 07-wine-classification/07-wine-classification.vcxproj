@@ -125,9 +125,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="entrypoint.cpp" />
-    <ClCompile Include="ETL.cpp" />
-    <ClCompile Include="LinearRegression.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>

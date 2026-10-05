@@ -123,6 +123,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\07-wine-classification\entrypoint.cpp" />
+    <ClCompile Include="..\07-wine-classification\ETL.cpp" />
+    <ClCompile Include="..\07-wine-classification\LinearRegression.cpp" />
     <ClCompile Include="..\10-isris-classification\10-iris-classification.cpp" />
     <ClCompile Include="..\10-isris-classification\abstraction.cpp" />
     <ClCompile Include="..\11-iris-xor-nn\11-iris-xor-nn.cpp" />

@@ -21,15 +21,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ETL.cpp">
-      <Filter>sample</Filter>
-    </ClCompile>
-    <ClCompile Include="LinearRegression.cpp">
-      <Filter>sample</Filter>
-    </ClCompile>
-    <ClCompile Include="entrypoint.cpp">
-      <Filter>sample</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
