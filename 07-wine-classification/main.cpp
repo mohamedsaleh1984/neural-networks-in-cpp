@@ -26,7 +26,35 @@ using namespace std;
 */
 
 namespace classification {
-    class Wine;
+    class Wine {
+    public:
+        Wine() = default;
+		// Constructor that takes a line from the CSV file and parses it into a Wine object
+        Wine(const std::string& line) {
+            std::vector<std::string> tokens;
+            boost::split(tokens, line, boost::is_any_of(","));
+            if (tokens.size() != 14) {
+                throw std::runtime_error("Invalid number of attributes in line: " + line);
+            }
+            label = std::stoi(tokens[0]);
+            for (size_t i = 1; i < tokens.size(); ++i) {
+                attributes.push_back(std::stod(tokens[i]));
+            }
+        }
+
+		// Getters for label and attributes
+        int getLabel() const {
+            return label;
+        }
+
+		// Get the attributes of the wine sample
+        const std::vector<double>& getAttributes() const { 
+            return attributes;
+        }
+    private:
+        int label;
+        std::vector<double> attributes;
+    };
 
     class dataReader {
     private:
@@ -53,11 +81,13 @@ namespace classification {
                 throw std::runtime_error("Could not open file: " + filename);
             }
 
-            std::vector<Wine> wines;
+            std::vector<Wine> wines = {};
             std::string line;
             if (header) {
                 std::getline(file, line); // Skip header
             }
+
+			// Read each line and create Wine objects
             while (std::getline(file, line)) {
                 try {
                     Wine xwine(line);
@@ -84,27 +114,7 @@ namespace classification {
 		}
     };
 
-    class Wine {
-    public:
-        Wine() = default;
  
-        Wine(const std::string& line) {
-            std::vector<std::string> tokens;
-            boost::split(tokens, line, boost::is_any_of(","));
-            if (tokens.size() != 14) {
-                throw std::runtime_error("Invalid number of attributes in line: " + line);
-            }
-            label = std::stoi(tokens[0]);
-            for (size_t i = 1; i < tokens.size(); ++i) {
-                attributes.push_back(std::stod(tokens[i]));
-            }
-        }
-        int getLabel() const { return label; }
-        const std::vector<double>& getAttributes() const { return attributes; }
-    private:
-        int label;
-        std::vector<double> attributes;
-    };
 
     class Classifier {
     public:
@@ -165,24 +175,36 @@ int main(int argc, char* argv[]) {
 	const double trainRatio = 0.8; // 80% training, 20% testing
 	using namespace classification;
     
+	cout << "Wine Classification using KNN" << endl;
+	cout << "Using training ratio: " << trainRatio * 100 << "%" << endl;
+	cout << "Reading dataset from: wine.data" << endl;
 	// Read the wine dataset and split it into training and testing sets
     dataReader reader("wine.data", ",", false);
     vector<Wine> wines = reader.readCSV();
 
+	cout << "Total samples read: " << wines.size() << endl;
+
 	// Split the dataset into training and testing sets
+	cout << "Splitting dataset into training and testing sets..." << endl;
     vector<vector<Wine>> splitData = reader.splitData(wines, trainRatio);
     vector<Wine> trainData = splitData[0];
     vector<Wine> testData = splitData[1];
 
 	// Evaluate the classifier on the test set
+	cout << "Evaluating classifier on test set..." << endl;
     Classifier classifier;
     int correctPredictions = 0;
+	cout << "Total test samples: " << testData.size() << endl;
+
     for (const auto& testSample : testData) {
+		cout << "Testing sample with label: " << testSample.getLabel() << endl;
         int predictedLabel = classifier.predictKNN(trainData, testSample);
         if (predictedLabel == testSample.getLabel()) {
             correctPredictions++;
         }
     }
+
+	cout << "Correct predictions: " << correctPredictions << std::endl;
     double accuracy = static_cast<double>(correctPredictions) / testData.size();
 	std::cout << "Accuracy: " << accuracy * 100 << "%" << std::endl;
 
