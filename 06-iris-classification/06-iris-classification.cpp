@@ -69,6 +69,18 @@ namespace classification {
 		return dataset;
 	}
 
+	template<typename T>
+	void append(vector<T>& to, vector<T> from)
+	{
+		if (to.size() == 0) {
+			to.insert(to.begin(), from.begin(), from.end());
+		}
+		else {
+			to.insert(to.begin() + to.size(), from.begin(), from.end());
+		}
+		to.shrink_to_fit();
+	}
+
 	/// <summary>
 	/// Constructs a training dataset by selecting specific entries from an iris dataset and converting each to a numeric vector.
 	/// </summary>
@@ -77,13 +89,14 @@ namespace classification {
 	vector<iris> get_training_dataset() {
 		vector<iris> dataset = getDataset();
 		vector<iris> training;
-		for (int j = 0; j < data_range.size(); j++) {
-			for (int i = 0; i < dataset.size(); i++) {
-				if (i >= data_range[j][0] && i <= (data_range[j][1] - 10)) {
-					training.push_back(dataset[i]);
-				}
-			}
+	
+		for (int i = 0; i < data_range.size(); i++)
+		{
+			vector<iris> tmp(dataset.begin() + data_range[i][0], dataset.begin() + data_range[i][1] - 10);
+			append(training, tmp);
+
 		}
+
 		return training;
 	}
 
@@ -96,13 +109,11 @@ namespace classification {
 	vector<iris> get_test_dataset() {
 		vector<iris> dataset = getDataset();
 		vector<iris>  test;
-		for (int j = 0; j < data_range.size(); j++) {
-			for (int i = 0; i < dataset.size(); i++) {
-
-				if (i >= (data_range[j][0] + 40) && i <= data_range[j][1]) {
-					test.push_back(dataset[i]);
-				}
-			}
+		// Train-test split logic based on the data_range
+		for (int i = 0; i < data_range.size(); i++)
+		{
+			vector<iris> xtmp(dataset.begin() + data_range[i][1] - 10, dataset.begin() + data_range[i][1]);
+			append(test, xtmp);
 		}
 		return test;
 	}
