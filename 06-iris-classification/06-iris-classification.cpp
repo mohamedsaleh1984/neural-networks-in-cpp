@@ -39,24 +39,9 @@ namespace classification {
 	vector<vector<int>>  data_range = { {0,49},{50,99},{100,149} };
 
 	/// <summary>
-	/// Constructs a training dataset by selecting specific entries from an iris dataset and converting each to a numeric vector.
+	/// Loads the Iris dataset from a CSV file named "iris.csv" and returns it as a vector of iris objects. Each iris object contains a vector of features (sepal length, sepal width, petal length, petal width) and a label (species name). The function reads the CSV line by line, splits each line into features and label, and constructs the iris objects accordingly.
 	/// </summary>
-	/// <param name="dataset">A vector of iris objects representing the full dataset. Elements at indices 0–39, 50–89, and 100–139 are selected and converted for training.</param>
-	/// <returns>A vector of numeric feature vectors (vector<vector<double>>), where each inner vector is the result of irisToDblVector for a selected iris instance.</returns>
-	vector<iris> get_training_dataset() {
-		vector<iris> dataset = getDataset();
-		vector<iris> training;
-		for (int j = 0; j < data_range.size(); j++) {
-			for (int i = 0; i < dataset.size(); i++) {
-				if (i >= data_range[j][0] && i <= (data_range[j][1] - 10)) {
-					training.push_back(dataset[i]);
-				}
-			}
-		}
-		return training;
-	}
-
-
+	/// <returns></returns>
 	vector<iris> getDataset()
 	{
 		std::vector<iris> dataset;
@@ -83,6 +68,25 @@ namespace classification {
 		file.close();
 		return dataset;
 	}
+
+	/// <summary>
+	/// Constructs a training dataset by selecting specific entries from an iris dataset and converting each to a numeric vector.
+	/// </summary>
+	/// <param name="dataset">A vector of iris objects representing the full dataset. Elements at indices 0–39, 50–89, and 100–139 are selected and converted for training.</param>
+	/// <returns>A vector of numeric feature vectors (vector<vector<double>>), where each inner vector is the result of irisToDblVector for a selected iris instance.</returns>
+	vector<iris> get_training_dataset() {
+		vector<iris> dataset = getDataset();
+		vector<iris> training;
+		for (int j = 0; j < data_range.size(); j++) {
+			for (int i = 0; i < dataset.size(); i++) {
+				if (i >= data_range[j][0] && i <= (data_range[j][1] - 10)) {
+					training.push_back(dataset[i]);
+				}
+			}
+		}
+		return training;
+	}
+
 
 	/// <summary>
 	/// Builds a test dataset by selecting specific entries from an iris dataset and converting each selected record to a vector<double>.
@@ -185,12 +189,17 @@ int main()
 
 		// Evaluate the model on the test data
 		int correctPredictions = 0;
+		
+		std::cout.setf(std::ios::left, std::ios::adjustfield);
 
 		std::cout << "--- Test Set Evaluation ---\n";
 		for (const auto& testSample : testData) {
 			std::string prediction = classification::predictKNN(trainData, testSample.features);
 
-			std::cout << "Actual: " << testSample.label << " | Predicted: " << prediction;
+			std::cout.width(10);
+			cout << "Actual: ";
+			std::cout.width(20);
+			cout << testSample.label << " | Predicted: " << prediction;
 
 			if (prediction == testSample.label) {
 				std::cout << " [Correct]\n";
