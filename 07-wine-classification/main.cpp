@@ -1,12 +1,13 @@
 #include <iostream>
 #include <string>
-#include <Eigen/Dense>
 #include <boost/algorithm/string.hpp>
 #include <fstream>
 #include <vector>
 #include <map>
 #include <cerrno>  // For errno
 #include <cstring>  // For std::strerror
+#include <algorithm>
+#include <random>    // for std::random_device, std::mt19937
 using namespace std;
 
 #define _CRT_SECURE_NO_WARNINGS
@@ -129,6 +130,12 @@ namespace classification {
 			return wines;
 		}
 
+		/// <summary>
+		/// Appends the contents of one vector to another. 
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="to"></param>
+		/// <param name="from"></param>
 		template<typename T>
 		void append(vector<T>& to, vector<T> from)
 		{
@@ -136,12 +143,11 @@ namespace classification {
 				to.insert(to.begin(), from.begin(), from.end());
 			}
 			else {
-			//	to.resize(to.size() + from.size() + 1);
 				to.insert(to.begin() + to.size(), from.begin(), from.end());
 			}
 			to.shrink_to_fit();
-			cout << to.size() << endl;
 		}
+
 		/// <summary>
 		/// Splits the dataset into training and testing sets based on the specified ratio.
 		/// </summary>
@@ -164,11 +170,17 @@ namespace classification {
 				append(testData, xtmp);
 			}
 			
+			// scramble the training and testing data to ensure randomness
+			// Create a random number generator
+			std::random_device rd;
+			std::mt19937 g(rd());
+			// Shuffle the training and testing data
+			shuffle(trainData.begin(), trainData.end(), g);
+			shuffle(testData.begin(), testData.end(), g);
+
 			return { trainData, testData };
 		}
 	};
-
-
 
 	class Classifier {
 	public:
