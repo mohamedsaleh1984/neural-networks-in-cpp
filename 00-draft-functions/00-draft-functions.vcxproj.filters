@@ -36,5 +36,8 @@
     <ClCompile Include="..\07-wine-classification\ETL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="C4.5_Algorithm_template.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

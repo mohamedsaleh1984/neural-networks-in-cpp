@@ -129,6 +129,7 @@
     <ClCompile Include="..\10-isris-classification\10-iris-classification.cpp" />
     <ClCompile Include="..\10-isris-classification\abstraction.cpp" />
     <ClCompile Include="..\11-iris-xor-nn\11-iris-xor-nn.cpp" />
+    <ClCompile Include="C4.5_Algorithm_template.cpp" />
     <ClCompile Include="ML.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
