@@ -263,11 +263,21 @@ int main(int argc, char* argv[]) {
 	cout << "Total test samples: " << testData.size() << endl;
 
 	for (const auto& testSample : testData) {
-		cout << "Testing sample with label: " << testSample.getLabel() << endl;
+		cout << "Testing sample with label: " << testSample.getLabel() << " ";
 		int predictedLabel = classifier.predictKNN(trainData, testSample);
+		cout << "Predicted label: " << predictedLabel << " ";
 		if (predictedLabel == testSample.getLabel()) {
 			correctPredictions++;
 		}
+
+		// Print prediction result
+		if (predictedLabel == testSample.getLabel()) {
+			cout << "Prediction correct!" << endl;
+		}
+		else {
+			cout << "Prediction incorrect." << endl;
+		}
+
 	}
 
 	cout << "Correct predictions: " << correctPredictions << std::endl;
